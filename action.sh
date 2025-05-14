@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 # Copyright 2024 Nils Knieling. All Rights Reserved.
 #
