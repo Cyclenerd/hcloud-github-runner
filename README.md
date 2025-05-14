@@ -160,6 +160,12 @@ jobs:
 | `server_type`       |   | Name of the Server type this Server should be created with. | `cx22` (Intel x86, 2 vCPU, 4GB RAM, 40GB SSD) |
 | `server_wait`       |   | Wait up to `server_wait` retries (10 sec each) for the Hetzner Cloud Server to start. | `30` (5 min) |
 | `ssh_key`           |   | SSH key ID (integer) which should be injected into the Server at creation time. | `null` |
+| `create_retries`    |   | Number of retry attempts for runner creation if it fails. | `1` |
+| `create_retry_delay`|   | Delay in seconds between runner creation retry attempts. | `10` |
+
+## Retry Logic
+
+If runner creation fails due to transient errors (e.g., resource unavailability or network issues), the action will automatically retry up to `create_retries` times, waiting `create_retry_delay` seconds between attempts.
 
 ## Outputs
 

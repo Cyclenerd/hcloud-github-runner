@@ -102,6 +102,16 @@ inputs:
       Specifies bash commands to run before the GitHub Actions Runner starts.
       It's useful for installing dependencies with apt-get, dnf, zypper etc.
     required: false
+  create_retries:
+    description: >-
+      Number of retry attempts for runner creation if it fails (default: 1).
+    required: false
+    default: '1'
+  create_retry_delay:
+    description: >-
+      Delay in seconds between runner creation retry attempts (default: 10).
+    required: false
+    default: '10'
 
 outputs:
   label:
@@ -142,3 +152,5 @@ runs:
         INPUT_SERVER_TYPE: ${{ inputs.server_type }}
         INPUT_SERVER_WAIT: ${{ inputs.server_wait }}
         INPUT_SSH_KEY: ${{ inputs.ssh_key }}
+        INPUT_CREATE_RETRIES: ${{ inputs.create_retries }}
+        INPUT_CREATE_RETRY_DELAY: ${{ inputs.create_retry_delay }}
