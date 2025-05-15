@@ -202,7 +202,17 @@ fi
 MY_RUNNER_WAIT=${INPUT_RUNNER_WAIT:-"60"}
 # Check if MY_RUNNER_WAIT is an integer
 if [[ ! "$MY_RUNNER_WAIT" =~ ^[0-9]+$ ]]; then
-	exit_with_failure "The maximum wait time (reties) for GitHub Action Runner registration must be an integer!"
+	exit_with_failure "The maximum wait time (retries) for GitHub Action Runner registration must be an integer!"
+fi
+
+# Set create retry logic inputs
+MY_CREATE_RETRIES=${INPUT_CREATE_RETRIES:-1}
+MY_CREATE_RETRY_DELAY=${INPUT_CREATE_RETRY_DELAY:-10}
+if [[ ! "$MY_CREATE_RETRIES" =~ ^[0-9]+$ ]]; then
+	exit_with_failure "The create_retries value must be an integer!"
+fi
+if [[ ! "$MY_CREATE_RETRY_DELAY" =~ ^[0-9]+$ ]]; then
+	exit_with_failure "The create_retry_delay value must be an integer!"
 fi
 
 # Set Hetzner Cloud Server ID
@@ -363,8 +373,10 @@ fi
 
 # Send a POST request to the Hetzner Cloud API to create a server.
 # https://docs.hetzner.cloud/#servers-create-a-server
-echo "Create server..."
-if ! curl \
+MY_CREATE_ATTEMPT=1
+while [[ $MY_CREATE_ATTEMPT -le $MY_CREATE_RETRIES ]]; do
+	echo "Create server (attempt $MY_CREATE_ATTEMPT of $MY_CREATE_RETRIES)..."
+	if curl \
 	-X POST \
 	--fail-with-body \
 	-o "servers.json" \
@@ -372,9 +384,20 @@ if ! curl \
 	-H "Authorization: Bearer ${MY_HETZNER_TOKEN}" \
 	-d @create-server.json \
 	"https://api.hetzner.cloud/v1/servers"; then
-	cat "servers.json"
-	exit_with_failure "Failed to create Server in Hetzner Cloud!"
-fi
+		echo "Server created successfully."
+		break
+	else
+		echo "Server creation failed (attempt $MY_CREATE_ATTEMPT)."
+		if [[ $MY_CREATE_ATTEMPT -lt $MY_CREATE_RETRIES ]]; then
+			echo "Retrying in $MY_CREATE_RETRY_DELAY seconds..."
+			sleep "$MY_CREATE_RETRY_DELAY"
+		else
+			cat "servers.json"
+			exit_with_failure "Failed to create Server in Hetzner Cloud after $MY_CREATE_RETRIES attempts!"
+		fi
+	fi
+	MY_CREATE_ATTEMPT=$((MY_CREATE_ATTEMPT + 1))
+done
 
 # Get the Hetzner Server ID from the JSON response (assuming valid JSON)
 MY_HETZNER_SERVER_ID=$(jq -er '.server.id' < "servers.json")
