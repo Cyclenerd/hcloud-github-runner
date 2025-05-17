@@ -141,6 +141,7 @@ jobs:
 
 | Name                | Required | Description | Default |
 |---------------------|----------|-------------|---------|
+| `create_wait`       |   | Wait up to 'create_wait' retries (10 sec each) to create the Hetzner Cloud Server resource. | `360` (1 hour) |
 | `enable_ipv4`       |   | Attach an IPv4 on the public NIC (true/false). If false, no IPv4 address will be attached. Warning: The GitHub API requires IPv4. Disabling it will result in connection failures. | `true` |
 | `enable_ipv6`       |   | Attach an IPv6 on the public NIC (true/false). If false, no IPv6 address will be attached. | `true` |
 | `github_token`      | ✓ (always) | Fine-grained GitHub Personal Access Token (PAT) with 'Read and write' access to 'Administration' assigned. |  |
@@ -160,12 +161,6 @@ jobs:
 | `server_type`       |   | Name of the Server type this Server should be created with. | `cx22` (Intel x86, 2 vCPU, 4GB RAM, 40GB SSD) |
 | `server_wait`       |   | Wait up to `server_wait` retries (10 sec each) for the Hetzner Cloud Server to start. | `30` (5 min) |
 | `ssh_key`           |   | SSH key ID (integer) which should be injected into the Server at creation time. | `null` |
-| `create_retries`    |   | Number of retry attempts for runner creation if it fails. | `1` |
-| `create_retry_delay`|   | Delay (in seconds) between retry attempts for runner creation. | `10` |
-
-### Retry Logic
-
-If runner creation fails due to a transient error, the action will retry up to `create_retries` times, waiting `create_retry_delay` seconds between attempts. All attempts and errors are logged.
 
 ## Outputs
 
