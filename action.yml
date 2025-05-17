@@ -73,6 +73,11 @@ inputs:
       'skip' will skip the installation. A working installation is expected in the 'runner_dir'.
     required: false
     default: 'latest'
+  create_wait:
+    description: >-
+      Wait up to 'create_wait' retries (10 sec each) to create the Hetzner Cloud Server resource (default: 360 = 1 hour).
+    required: false
+    default: '360'
   runner_wait:
     description: >-
       Wait up to 'runner_wait' retries (10 sec each) for runner registration (default: 10 minutes).
@@ -102,16 +107,6 @@ inputs:
       Specifies bash commands to run before the GitHub Actions Runner starts.
       It's useful for installing dependencies with apt-get, dnf, zypper etc.
     required: false
-  create_retries:
-    description: >-
-      Number of retry attempts for runner creation if it fails.
-    required: false
-    default: '1'
-  create_retry_delay:
-    description: >-
-      Delay (in seconds) between retry attempts for runner creation.
-    required: false
-    default: '10'
 
 outputs:
   label:
