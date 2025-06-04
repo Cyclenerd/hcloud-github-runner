@@ -226,17 +226,22 @@ if [[ "$MY_MODE" == "delete" ]]; then
 		exit_with_failure "Failed to get ID of the Hetzner Cloud Server!"
 	fi
 
-	# Send a DELETE request to the Hetzner Cloud API to delete the server.
-	# https://docs.hetzner.cloud/#servers-delete-a-server
-	echo "Delete server..."
-	curl \
-		-X DELETE \
-		--fail-with-body \
-		-H "Content-Type: application/json" \
-		-H "Authorization: Bearer ${MY_HETZNER_TOKEN}" \
-		"https://api.hetzner.cloud/v1/servers/$MY_HETZNER_SERVER_ID" \
-		|| exit_with_failure "Error deleting server!"
-	echo "Hetzner Cloud Server deleted successfully."
+# Send DELETE requests to the Hetzner Cloud API until the server is deleted
+# https://docs.hetzner.cloud/#servers-delete-a-server
+while true; do
+  echo "Delete server..."
+  if curl \
+    -X DELETE \
+    --fail-with-body \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${MY_HETZNER_TOKEN}" \
+    "https://api.hetzner.cloud/v1/servers/$MY_HETZNER_SERVER_ID"; then
+    echo "Server deleted successfully."
+    break
+  fi
+  echo "Failed to delete server. Retrying in 30 seconds..."
+  sleep 30
+done
 
 	# List self-hosted runners for repository
 	# https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#list-self-hosted-runners-for-a-repository
