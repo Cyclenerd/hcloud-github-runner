@@ -59,6 +59,20 @@ done
 # https://docs.github.com/en/actions/sharing-automations/creating-actions/metadata-syntax-for-github-actions#inputs
 # When you specify an input, GitHub creates an environment variable for the input with the name INPUT_<VARIABLE_NAME>.
 
+# Set maximal retries * 10 seconds for Hetzner Server creation via the Hetzer Cloud API (default: 360 [1 hour])
+# If INPUT_CREATE_WAIT is set, use its value; otherwise, use "360".
+MY_CREATE_WAIT=${INPUT_CREATE_WAIT:-360}
+if [[ ! "$MY_CREATE_WAIT" =~ ^[0-9]+$ ]]; then
+	exit_with_failure "The maximum wait time (retries) for Hetzner Server creation via the Hetzer Cloud API must be an integer!"
+fi
+
+# Set maximal retries * 10 seconds for Hetzner Server deletion via the Hetzer Cloud API (default: 360 [1 hour])
+# If INPUT_DELETE_WAIT is set, use its value; otherwise, use "360".
+MY_DELETE_WAIT=${INPUT_DELETE_WAIT:-360}
+if [[ ! "$MY_DELETE_WAIT" =~ ^[0-9]+$ ]]; then
+	exit_with_failure "The maximum wait time (retries) for Hetzner Server deletion via the Hetzer Cloud API must be an integer!"
+fi
+
 # Set the Hetzner Cloud API token.
 # Retrieves the value from the INPUT_HCLOUD_TOKEN environment variable.
 MY_HETZNER_TOKEN=${INPUT_HCLOUD_TOKEN}
@@ -205,15 +219,11 @@ if [[ ! "$MY_RUNNER_WAIT" =~ ^[0-9]+$ ]]; then
 	exit_with_failure "The maximum wait time (retries) for GitHub Action Runner registration must be an integer!"
 fi
 
-# Set maximal wait time (retries * 10 sec) for Hetzner Server creation (default: 360 [1 hour])
-# If INPUT_CREATE_WAIT is set, use its value; otherwise, use "360".
-MY_CREATE_WAIT=${INPUT_CREATE_WAIT:-360}
-if [[ ! "$MY_CREATE_WAIT" =~ ^[0-9]+$ ]]; then
-	exit_with_failure "The maximum wait time (retries) for Hetzner Server creation must be an integer!"
-fi
-
 # Set Hetzner Cloud Server ID
 MY_HETZNER_SERVER_ID=${INPUT_SERVER_ID}
+
+# Retry wait time in secounds
+WAIT_SEC=10
 
 
 #
@@ -228,9 +238,13 @@ if [[ "$MY_MODE" == "delete" ]]; then
 
 	# Send a DELETE request to the Hetzner Cloud API to delete the server.
 	# https://docs.hetzner.cloud/#servers-delete-a-server
+	# curl retry: https://everything.curl.dev/usingcurl/downloads/retry.html
 	echo "Delete server..."
 	curl \
 		-X DELETE \
+		--retry "$MY_DELETE_WAIT" \
+		--retry-delay "$WAIT_SEC" \
+		--retry-all-errors \
 		--fail-with-body \
 		-H "Content-Type: application/json" \
 		-H "Authorization: Bearer ${MY_HETZNER_TOKEN}" \
@@ -372,7 +386,6 @@ fi
 # https://docs.hetzner.cloud/#servers-create-a-server
 MAX_RETRIES=$MY_CREATE_WAIT
 RETRY_COUNT=0
-WAIT_SEC=10
 while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
 	echo "Create Server..."
 	if curl \

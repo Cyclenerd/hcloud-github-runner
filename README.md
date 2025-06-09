@@ -141,7 +141,8 @@ jobs:
 
 | Name                | Required | Description | Default |
 |---------------------|----------|-------------|---------|
-| `create_wait`       |   | Wait up to 'create_wait' retries (10 sec each) to create the Hetzner Cloud Server resource. | `360` (1 hour) |
+| `create_wait`       |   | Wait up to `create_wait` retries (10 sec each) to create the Server resource via the Hetzner Cloud API. Retry if: Resource is not available ([Limited availability of Cloud plans](https://status.hetzner.com/incident/aa5ce33b-faa5-4fd0-9782-fde43cd270cf)). | `360` (1 hour) |
+| `delete_wait`       |   | Wait up to `delete_wait` retries (10 sec each) to delete the Server resource via the Hetzner Cloud API. Retry if: Temporary outage of the API ([Fault report on Cloud API and Cloud Console](https://status.hetzner.com/incident/440e6b5f-249c-45fd-8074-e5d79cc4e2a6)). | `360` (1 hour) |
 | `enable_ipv4`       |   | Attach an IPv4 on the public NIC (true/false). If false, no IPv4 address will be attached. Warning: The GitHub API requires IPv4. Disabling it will result in connection failures. | `true` |
 | `enable_ipv6`       |   | Attach an IPv6 on the public NIC (true/false). If false, no IPv6 address will be attached. | `true` |
 | `github_token`      | ✓ (always) | Fine-grained GitHub Personal Access Token (PAT) with 'Read and write' access to 'Administration' assigned. |  |

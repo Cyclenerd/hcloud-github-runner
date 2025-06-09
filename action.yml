@@ -7,18 +7,16 @@ branding:
   color: 'red'
 
 inputs:
-  mode:
+  create_wait:
     description: >-
-      Choose either 'create' to create a new GitHub Actions Runner or 'delete' to delete a previously created one.
-    required: true
-  github_token:
+      Wait up to 'create_wait' retries (10 sec each) to create the Server resource via the Hetzner Cloud API (default: 360 = 1 hour).
+    required: false
+    default: '360'
+  delete_wait:
     description: >-
-      Fine-grained GitHub Personal Access Token (PAT) with 'Read and write' access to 'Administration' assigned.
-    required: true
-  hcloud_token:
-    description: >-
-      Hetzner Cloud API token with 'Read & Write' permissions assigned.
-    required: true
+      Wait up to 'delete_wait' retries (10 sec each) to delete the Server resource via the Hetzner Cloud API (default: 360 = 1 hour).
+    required: false
+    default: '360'
   enable_ipv4:
     description: >-
       Attach an IPv4 on the public NIC (true/false) . If false, no IPv4 address will be attached.
@@ -30,6 +28,14 @@ inputs:
       Attach an IPv6 on the public NIC (true/false). If false, no IPv6 address will be attached.
     required: false
     default: 'true'
+  github_token:
+    description: >-
+      Fine-grained GitHub Personal Access Token (PAT) with 'Read and write' access to 'Administration' assigned.
+    required: true
+  hcloud_token:
+    description: >-
+      Hetzner Cloud API token with 'Read & Write' permissions assigned.
+    required: true
   image:
     description: >-
       Name or ID (integer) of the Image the Server is created from.
@@ -40,6 +46,10 @@ inputs:
       Name of Location to create Server in.
     required: false
     default: 'nbg1'
+  mode:
+    description: >-
+      Choose either 'create' to create a new GitHub Actions Runner or 'delete' to delete a previously created one.
+    required: true
   name:
     description: >-
       The name for the server and label for the GitHub Actions Runner (must be unique within the project and conform to hostname rules: '[a-zA-Z0-9_-]').
@@ -49,6 +59,11 @@ inputs:
       Network ID (integer) which should be attached to the Server private network interface at the creation time.
     required: false
     default: 'null'
+  pre_runner_script:
+    description: >-
+      Specifies bash commands to run before the GitHub Actions Runner starts.
+      It's useful for installing dependencies with apt-get, dnf, zypper etc.
+    required: false
   primary_ipv4:
     description: >-
       ID (integer) of the IPv4 Primary IP to use.
@@ -66,6 +81,11 @@ inputs:
       GitHub Actions Runner installation directory (created automatically; no trailing slash).
     required: false
     default: '/actions-runner'
+  runner_wait:
+    description: >-
+      Wait up to 'runner_wait' retries (10 sec each) for runner registration (default: 10 minutes).
+    required: false
+    default: '60'
   runner_version:
     description: >-
       GitHub Actions Runner version (omit 'v'; e.g., '2.321.0').
@@ -73,16 +93,6 @@ inputs:
       'skip' will skip the installation. A working installation is expected in the 'runner_dir'.
     required: false
     default: 'latest'
-  create_wait:
-    description: >-
-      Wait up to 'create_wait' retries (10 sec each) to create the Hetzner Cloud Server resource (default: 360 = 1 hour).
-    required: false
-    default: '360'
-  runner_wait:
-    description: >-
-      Wait up to 'runner_wait' retries (10 sec each) for runner registration (default: 10 minutes).
-    required: false
-    default: '60'
   server_id:
     description: >-
       ID (integer) of Hetzner Cloud Server to delete.
@@ -102,11 +112,6 @@ inputs:
       SSH key ID (integer) or name which should be injected into the Server at creation time.
     required: false
     default: 'null'
-  pre_runner_script:
-    description: >-
-      Specifies bash commands to run before the GitHub Actions Runner starts.
-      It's useful for installing dependencies with apt-get, dnf, zypper etc.
-    required: false
 
 outputs:
   label:
@@ -128,6 +133,8 @@ runs:
       working-directory: ${{ github.action_path }}
       run: bash action.sh
       env:
+        INPUT_CREATE_WAIT: ${{ inputs.create_wait }}
+        INPUT_DELETE_WAIT: ${{ inputs.delete_wait }}
         INPUT_ENABLE_IPV4: ${{ inputs.enable_ipv4 }}
         INPUT_ENABLE_IPV6: ${{ inputs.enable_ipv6 }}
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
@@ -147,4 +154,3 @@ runs:
         INPUT_SERVER_TYPE: ${{ inputs.server_type }}
         INPUT_SERVER_WAIT: ${{ inputs.server_wait }}
         INPUT_SSH_KEY: ${{ inputs.ssh_key }}
-        INPUT_CREATE_WAIT: ${{ inputs.create_wait }}
