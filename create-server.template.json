@@ -1,5 +1,13 @@
 {
+  "name": $name,
   "location": $location,
+  "server_type": $server_type,
+  "start_after_create": true,
+  "image": $image,
+  "ssh_keys": [],
+  "volumes": [],
+  "networks": [],
+  "user_data": $cloud_init_yml,
   "labels": {
     "type": "github-runner",
     "os-image": $image,
@@ -7,17 +15,9 @@
     "gh-owner-id": $github_owner_id,
     "gh-repo-id": $github_repo_id
   },
-  "image": $image,
-  "server_type": $server_type,
-  "name": $name,
-  "networks": [],
+  "automount": true,
   "public_net": {
     "enable_ipv4": $enable_ipv4,
     "enable_ipv6": $enable_ipv6,
-  },
-  "start_after_create": true,
-  "ssh_keys": [],
-  "volumes": [],
-  "automount": true,
-  "user_data": $cloud_init_yml,
+  }
 }
