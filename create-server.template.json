@@ -18,5 +18,6 @@
   "start_after_create": true,
   "ssh_keys": [],
   "volumes": [],
+  "automount": true,
   "user_data": $cloud_init_yml,
 }
