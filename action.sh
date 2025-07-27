@@ -396,9 +396,6 @@ if [[ "$MY_VOLUME" != "null" ]]; then
 	echo "Volume added to create-server.json."
 fi
 
-# Temp: Show create-server.json
-jq < create-server.json
-
 # Send a POST request to the Hetzner Cloud API to create a server.
 # https://docs.hetzner.cloud/#servers-create-a-server
 MAX_RETRIES=$MY_CREATE_WAIT
@@ -432,9 +429,6 @@ while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
 	echo "Failed to create Server. Wait $WAIT_SEC seconds... (Attempt $RETRY_COUNT/$MAX_RETRIES)"
 	sleep "$WAIT_SEC"
 done
-
-# Temp: Show servers.json
-jq < servers.json
 
 # Get the Hetzner Server ID from the JSON response (assuming valid JSON)
 MY_HETZNER_SERVER_ID=$(jq -er '.server.id' < "servers.json")
