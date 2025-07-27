@@ -396,6 +396,9 @@ if [[ "$MY_VOLUME" != "null" ]]; then
 	echo "Volume added to create-server.json."
 fi
 
+# Temp: Show create-server.json
+jq < create-server.json
+
 # Send a POST request to the Hetzner Cloud API to create a server.
 # https://docs.hetzner.cloud/#servers-create-a-server
 MAX_RETRIES=$MY_CREATE_WAIT
