@@ -162,7 +162,7 @@ jobs:
 | `server_type`       |   | Name of the Server type this Server should be created with. | `cx22` (Intel x86, 2 vCPU, 4GB RAM, 40GB SSD) |
 | `server_wait`       |   | Wait up to `server_wait` retries (10 sec each) for the Hetzner Cloud Server to start. | `30` (5 min) |
 | `ssh_key`           |   | SSH key ID (integer) which should be injected into the Server at creation time. | `null` |
-| `volume`            |   | Volume ID which should be attached to the Server at the creation time. Volume must be in the same Location. | `null` |
+| `volume`            |   | Volume ID (integer) which should be attached to the Server at the creation time. Volume must be in the same Location. | `null` |
 
 ## Outputs
 
