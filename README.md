@@ -303,7 +303,7 @@ hcloud volume list --output "columns=ID,NAME,LOCATION"
 To create a 10GB volume named `volume-test` in the Nuremberg DC Park 1 (`nbg1`) location, use the following command:
 
 ```bash
-hcloud volume create --name "volume-test" --size "10" --location "nbg1"
+hcloud volume create --name "volume-test" --size "10" --format "ext4" --location "nbg1"
 ```
 
 ## Security
