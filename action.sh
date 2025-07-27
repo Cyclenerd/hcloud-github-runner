@@ -226,6 +226,14 @@ if [[ "$MY_SSH_KEY" != "null" && ! "$MY_SSH_KEY" =~ ^[0-9]+$ ]]; then
 	exit_with_failure "The SSH key ID must be 'null' or an integer!"
 fi
 
+# Set the volume ID which should be attached to the instance at the creation time (default: null)
+# If INPUT_VOLUME is set, use its value; otherwise, use "null".
+MY_VOLUME=${INPUT_VOLUME:-"null"}
+# Check if MY_VOLUME is an integer
+if [[ "$MY_VOLUME" != "null" && ! "$MY_VOLUME" =~ ^[0-9]+$ ]]; then
+	exit_with_failure "The volume ID must be 'null' or an integer!"
+fi
+
 #
 # DELETE
 #
@@ -369,17 +377,23 @@ if [[ "$MY_PRIMARY_IPV6" != "null" ]]; then
 	jq ".public_net.ipv6 = $MY_PRIMARY_IPV6" < create-server-ipv6.json > create-server.json && \
 	echo "Primary IPv6 ID added to create-server.json."
 fi
+# Add network configuration to the create-server.json file if MY_NETWORK is not "null".
+if [[ "$MY_NETWORK" != "null" ]]; then
+	cp create-server.json create-server-network.json && \
+	jq ".networks += [$MY_NETWORK]" < create-server-network.json > create-server.json && \
+	echo "Network added to create-server.json."
+fi
 # Add SSH key configuration to the create-server.json file if MY_SSH_KEY is not "null".
 if [[ "$MY_SSH_KEY" != "null" ]]; then
 	cp create-server.json create-server-ssh.json && \
 	jq ".ssh_keys += [$MY_SSH_KEY]" < create-server-ssh.json > create-server.json && \
 	echo "SSH key added to create-server.json."
 fi
-# Add network configuration to the create-server.json file if MY_NETWORK is not "null".
-if [[ "$MY_NETWORK" != "null" ]]; then
-	cp create-server.json create-server-network.json && \
-	jq ".networks += [$MY_NETWORK]" < create-server-network.json > create-server.json && \
-	echo "Network added to create-server.json."
+# Add volume configuration to the create-server.json file if MY_VOLUME is not "null".
+if [[ "$MY_VOLUME" != "null" ]]; then
+	cp create-server.json create-server-volume.json && \
+	jq ".volumes += [$MY_VOLUME]" < create-server-volume.json > create-server.json && \
+	echo "Volume added to create-server.json."
 fi
 
 # Send a POST request to the Hetzner Cloud API to create a server.

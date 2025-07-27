@@ -112,6 +112,11 @@ inputs:
       SSH key ID (integer) or name which should be injected into the Server at creation time.
     required: false
     default: 'null'
+  volume:
+    description: >-
+      Volume ID (integer) which should be attached to the Server at the creation time.
+    required: false
+    default: 'null'
 
 outputs:
   label:
@@ -154,3 +159,4 @@ runs:
         INPUT_SERVER_TYPE: ${{ inputs.server_type }}
         INPUT_SERVER_WAIT: ${{ inputs.server_wait }}
         INPUT_SSH_KEY: ${{ inputs.ssh_key }}
+        INPUT_VOLUME: ${{ inputs.volume }}

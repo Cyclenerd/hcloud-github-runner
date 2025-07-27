@@ -17,5 +17,6 @@
   },
   "start_after_create": true,
   "ssh_keys": [],
+  "volumes": [],
   "user_data": $cloud_init_yml,
 }

@@ -162,6 +162,7 @@ jobs:
 | `server_type`       |   | Name of the Server type this Server should be created with. | `cx22` (Intel x86, 2 vCPU, 4GB RAM, 40GB SSD) |
 | `server_wait`       |   | Wait up to `server_wait` retries (10 sec each) for the Hetzner Cloud Server to start. | `30` (5 min) |
 | `ssh_key`           |   | SSH key ID (integer) which should be injected into the Server at creation time. | `null` |
+| `volume`            |   | Volume ID which should be attached to the Server at the creation time. Volume must be in the same Location. | `null` |
 
 ## Outputs
 
@@ -289,6 +290,20 @@ hcloud network list --output "columns=ID,NAME,IP_RANGE,SERVERS"
 
 ```bash
 hcloud ssh-key list --output "columns=ID,NAME"
+```
+
+**List Volumes:**
+
+```bash
+hcloud volume list --output "columns=ID,NAME,LOCATION"
+```
+
+**Create Volume:**
+
+To create a 10GB volume named `volume-test` in the Nuremberg DC Park 1 (`nbg1`) location, use the following command:
+
+```bash
+hcloud volume create --name "volume-test" --size "10" --location "nbg1"
 ```
 
 ## Security
