@@ -8,6 +8,7 @@ packages:
 package_update: true
 package_upgrade: false
 runcmd:
+  - udevadm trigger -c add -s block -p ID_VENDOR=HC -p ID_MODEL=Volume
   - export RUNNER_ALLOW_RUNASROOT=1
   - bash $MY_RUNNER_DIR/pre_runner_script.sh
   - bash $MY_RUNNER_DIR/install.sh -v "$MY_RUNNER_VERSION" -d "$MY_RUNNER_DIR"
