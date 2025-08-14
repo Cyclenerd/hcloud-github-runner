@@ -430,11 +430,6 @@ while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
 	sleep "$WAIT_SEC"
 done
 
-# TODO: Remove after test
-# Temp: Show servers.json
-jq < create-server.json
-jq < servers.json
-
 # Get the Hetzner Server ID from the JSON response (assuming valid JSON)
 MY_HETZNER_SERVER_ID=$(jq -er '.server.id' < "servers.json")
 
