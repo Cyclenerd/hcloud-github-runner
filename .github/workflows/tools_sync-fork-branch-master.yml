@@ -1,0 +1,42 @@
+---
+name: Manage - Sync fork (Branch master)
+
+"on":
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  update_external_airflow_fork:
+    name: Sync branch master with origin
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Generate app token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859  # v3.0.0
+        id: generate-token
+        with:
+          app-id: ${{ secrets.GH_APP_SRP_ID }}
+          private-key: ${{ secrets.GH_APP_SRP_PRIVATE_KEY }}
+
+      - name: Checkout Code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Synchronize the given branch now
+        uses: TobKed/github-forks-sync-action@2fb78daa46a630ff56455a63dec51ff00ba56e23  # v0.4.0
+        with:
+          github_token: ${{ steps.generate-token.outputs.token }}
+          upstream_repository: Cyclenerd/hcloud-github-runner
+          target_repository: ${{ github.repository }}
+          upstream_branch: master
+          target_branch: master
+          force: false
+          tags: false
