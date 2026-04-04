@@ -13,7 +13,8 @@
     "os-image": $image,
     "gh-ver": $runner_version,
     "gh-owner-id": $github_owner_id,
-    "gh-repo-id": $github_repo_id
+    "gh-repo-id": $github_repo_id,
+    "runner-scope": $runner_scope
   },
   "automount": false,
   "public_net": {
