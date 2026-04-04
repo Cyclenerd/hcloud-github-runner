@@ -159,7 +159,7 @@ jobs:
 | `location`          |   | Name of Location to create Server in. | `nbg1` (Nürnberg 1) |
 | `mode`              | ✓ (always) | Choose either `create` to create a new GitHub Actions Runner or `delete` to delete a previously created one. |  |
 | `name`              | ✓ (mode `delete`, optional for mode `create`) | The name for the server and label for the GitHub Actions Runner (must be unique within the project and conform to hostname rules: `^[a-zA-Z0-9_-]{1,64}`). | `gh-runner-[RANDOM-INT]` |
-| `network`           |   | Network ID (integer) which should be attached to the Server private network interface at the creation time. | `null` |
+| `network`           |   | Comma separated Network IDs (integer) which should be attached to the Server private network interface at the creation time. | `null` |
 | `pre_runner_script` |   | Specifies bash commands to run before the GitHub Actions Runner starts. It's useful for installing dependencies with apt-get, dnf, zypper etc. |  |
 | `primary_ipv4`      |   | ID (integer) of the IPv4 Primary IP to use. If omitted and `enable_ipv4` is true, a new IPv4 Primary IP will automatically be created. | `null` |
 | `primary_ipv6`      |   | ID (integer) of the IPv6 Primary IP to use. If omitted and `enable_ipv6` is true, a new IPv6 Primary IP will automatically be created. | `null` |
@@ -169,8 +169,8 @@ jobs:
 | `server_id`         | ✓ (mode `stop`) | ID (integer) of Hetzner Cloud Server to delete. | |
 | `server_type`       |   | Name of the Server type this Server should be created with. | `cx23` (Intel x86, 2 vCPU, 4GB RAM, 40GB SSD) |
 | `server_wait`       |   | Wait up to `server_wait` retries (10 sec each) for the Hetzner Cloud Server to start. | `30` (5 min) |
-| `ssh_key`           |   | SSH key ID (integer) which should be injected into the Server at creation time. | `null` |
-| `volume`            |   | Specify a Volume ID (integer) to attach and mount to the Server during creation. The volume will be automatically mounted at `/mnt/HC_Volume_[VOLUME-ID]`. The volume must be in the same location as the Server. More details in [Volumes section](#Volumes). | `null` |
+| `ssh_key`           |   | Comma separated SSH key IDs (integer) which should be injected into the Server at creation time. | `null` |
+| `volume`            |   | Comma separated Volume IDs (integer) to attach and mount to the Server during creation. Volumes will be automatically mounted at `/mnt/HC_Volume_[VOLUME-ID]`. Volumes must be in the same location as the Server. More details in [Volumes section](#Volumes). | `null` |
 
 ## Outputs
 

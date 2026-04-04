@@ -23,6 +23,18 @@ function exit_with_failure() {
 	exit 1
 }
 
+# Function to check all values of a comma separated list are integers
+function check_all_integers() {
+	IFS=',' read -ra _values <<< "$1"
+	for value in "${_values[@]}"; do
+		if [[ ! "$value" =~ ^[0-9]+$ ]]; then
+			echo "$value"
+			return 1
+		fi
+	done
+	return 0
+}
+
 # Define required commands
 MY_COMMANDS=(
 	base64
@@ -150,11 +162,12 @@ if [[ "$MY_NAME" == "hetzner" ]]; then
 fi
 
 # Set the network for the instance (default: null)
-# If INPUT_NETWORK is set, use its value; otherwise, use "null".
-MY_NETWORK=${INPUT_NETWORK:-"null"}
-# Check if MY_NETWORK is an integer
-if [[ "$MY_NETWORK" != "null" && ! "$MY_NETWORK" =~ ^[0-9]+$ ]]; then
-	exit_with_failure "The network ID must be 'null' or an integer!"
+# If INPUT_NETWORKS is set, use its value; otherwise, use "null".
+MY_NETWORKS=${INPUT_NETWORKS:-"null"}
+if [[ "$MY_NETWORKS" != "null" ]]; then
+	invalid_value=$(check_all_integers "$MY_NETWORKS") || {
+		exit_with_failure "Invalid network ID: $invalid_value (must be 'null' or an integer)"
+	}
 fi
 
 # Set bash commands to run before the runner starts.
@@ -219,19 +232,21 @@ if [[ ! "$MY_SERVER_WAIT" =~ ^[0-9]+$ ]]; then
 fi
 
 # Set the SSH key to use for the instance (default: null)
-# If INPUT_SSH_KEY is set, use its value; otherwise, use "null".
-MY_SSH_KEY=${INPUT_SSH_KEY:-"null"}
-# Check if MY_SSH_KEY is an integer
-if [[ "$MY_SSH_KEY" != "null" && ! "$MY_SSH_KEY" =~ ^[0-9]+$ ]]; then
-	exit_with_failure "The SSH key ID must be 'null' or an integer!"
+# If INPUT_SSH_KEYS is set, use its value; otherwise, use "null".
+MY_SSH_KEYS=${INPUT_SSH_KEYS:-"null"}
+if [[ "$MY_SSH_KEYS" != "null" ]]; then
+	invalid_value=$(check_all_integers "$MY_SSH_KEYS") || {
+		exit_with_failure "Invalid SSH key ID: $invalid_value (must be 'null' or an integer)"
+	}
 fi
 
 # Set the volume ID which should be attached to the instance at the creation time (default: null)
-# If INPUT_VOLUME is set, use its value; otherwise, use "null".
-MY_VOLUME=${INPUT_VOLUME:-"null"}
-# Check if MY_VOLUME is an integer
-if [[ "$MY_VOLUME" != "null" && ! "$MY_VOLUME" =~ ^[0-9]+$ ]]; then
-	exit_with_failure "The volume ID must be 'null' or an integer!"
+# If INPUT_VOLUMES is set, use its value; otherwise, use "null".
+MY_VOLUMES=${INPUT_VOLUMES:-"null"}
+if [[ "$MY_VOLUMES" != "null" ]]; then
+	invalid_value=$(check_all_integers "$MY_VOLUMES") || {
+		exit_with_failure "Invalid volume ID: $invalid_value (must be 'null' or an integer)"
+	}
 fi
 
 #
@@ -292,7 +307,7 @@ if [[ "$MY_MODE" == "delete" ]]; then
 	echo "GitHub Actions Runner deleted successfully."
 	echo
 	echo "The Hetzner Cloud Server and its associated GitHub Actions Runner have been deleted successfully."
-	# Add GitHub Action job summary 
+	# Add GitHub Action job summary
 	# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#adding-a-job-summary
 	echo "The Hetzner Cloud Server and its associated GitHub Actions Runner have been deleted successfully 🗑️" >> "$GITHUB_STEP_SUMMARY"
 	exit 0
@@ -377,23 +392,23 @@ if [[ "$MY_PRIMARY_IPV6" != "null" ]]; then
 	jq ".public_net.ipv6 = $MY_PRIMARY_IPV6" < create-server-ipv6.json > create-server.json && \
 	echo "Primary IPv6 ID added to create-server.json."
 fi
-# Add network configuration to the create-server.json file if MY_NETWORK is not "null".
-if [[ "$MY_NETWORK" != "null" ]]; then
+# Add network configuration to the create-server.json file if MY_NETWORKS is not "null".
+if [[ "$MY_NETWORKS" != "null" ]]; then
 	cp create-server.json create-server-network.json && \
-	jq ".networks += [$MY_NETWORK]" < create-server-network.json > create-server.json && \
-	echo "Network added to create-server.json."
+	jq ".networks += [$MY_NETWORKS]" < create-server-network.json > create-server.json && \
+	echo "Networks added to create-server.json."
 fi
-# Add SSH key configuration to the create-server.json file if MY_SSH_KEY is not "null".
-if [[ "$MY_SSH_KEY" != "null" ]]; then
+# Add SSH key configuration to the create-server.json file if MY_SSH_KEYS is not "null".
+if [[ "$MY_SSH_KEYS" != "null" ]]; then
 	cp create-server.json create-server-ssh.json && \
-	jq ".ssh_keys += [$MY_SSH_KEY]" < create-server-ssh.json > create-server.json && \
-	echo "SSH key added to create-server.json."
+	jq ".ssh_keys += [$MY_SSH_KEYS]" < create-server-ssh.json > create-server.json && \
+	echo "SSH keys added to create-server.json."
 fi
-# Add volume configuration to the create-server.json file if MY_VOLUME is not "null".
-if [[ "$MY_VOLUME" != "null" ]]; then
+# Add volume configuration to the create-server.json file if MY_VOLUMES is not "null".
+if [[ "$MY_VOLUMES" != "null" ]]; then
 	cp create-server.json create-server-volume.json && \
-	jq ".volumes += [$MY_VOLUME]" < create-server-volume.json > create-server.json && \
-	echo "Volume added to create-server.json."
+	jq ".volumes += [$MY_VOLUMES]" < create-server-volume.json > create-server.json && \
+	echo "Volumes added to create-server.json."
 fi
 
 # Send a POST request to the Hetzner Cloud API to create a server.
@@ -508,9 +523,9 @@ if [[ ! "$MY_GITHUB_RUNNER_ID" =~ ^[0-9]+$ ]]; then
 fi
 
 echo
-echo "The Hetzner Cloud Server and its associated GitHub Actions Runner are ready for use." 
+echo "The Hetzner Cloud Server and its associated GitHub Actions Runner are ready for use."
 echo "Runner: https://github.com/${MY_GITHUB_REPOSITORY}/settings/actions/runners/${MY_GITHUB_RUNNER_ID}"
-# Add GitHub Action job summary 
+# Add GitHub Action job summary
 # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#adding-a-job-summary
 echo "The Hetzner Cloud Server and its associated [GitHub Actions Runner](https://github.com/${MY_GITHUB_REPOSITORY}/settings/actions/runners/${MY_GITHUB_RUNNER_ID}) are ready for use 🚀" >> "$GITHUB_STEP_SUMMARY"
 exit 0

@@ -56,7 +56,7 @@ inputs:
     required: false
   network:
     description: >-
-      Network ID (integer) which should be attached to the Server private network interface at the creation time.
+      Comma separated Network IDs (integer) which should be attached to the Server private network interface at the creation time.
     required: false
     default: 'null'
   pre_runner_script:
@@ -109,12 +109,12 @@ inputs:
     default: '30'
   ssh_key:
     description: >-
-      SSH key ID (integer) or name which should be injected into the Server at creation time.
+      Comma separated SSH key IDs (integer) which should be injected into the Server at creation time.
     required: false
     default: 'null'
   volume:
     description: >-
-      Volume ID (integer) which should be attached to the Server at the creation time.
+      Comma separated Volume IDs (integer) which should be attached to the Server at the creation time.
     required: false
     default: 'null'
 
@@ -148,7 +148,7 @@ runs:
         INPUT_LOCATION: ${{ inputs.location }}
         INPUT_MODE: ${{ inputs.mode }}
         INPUT_NAME: ${{ inputs.name }}
-        INPUT_NETWORK: ${{ inputs.network }}
+        INPUT_NETWORKS: ${{ inputs.network }}
         INPUT_PRE_RUNNER_SCRIPT: ${{ inputs.pre_runner_script }}
         INPUT_PRIMARY_IPV4: ${{ inputs.primary_ipv4 }}
         INPUT_PRIMARY_IPV6: ${{ inputs.primary_ipv6 }}
@@ -158,5 +158,5 @@ runs:
         INPUT_SERVER_ID: ${{ inputs.server_id }}
         INPUT_SERVER_TYPE: ${{ inputs.server_type }}
         INPUT_SERVER_WAIT: ${{ inputs.server_wait }}
-        INPUT_SSH_KEY: ${{ inputs.ssh_key }}
-        INPUT_VOLUME: ${{ inputs.volume }}
+        INPUT_SSH_KEYS: ${{ inputs.ssh_key }}
+        INPUT_VOLUMES: ${{ inputs.volume }}
