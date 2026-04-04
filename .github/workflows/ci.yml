@@ -1,5 +1,5 @@
 ---
-name: "CI Testing Bash SCript"
+name: "CI Testing Bash Script"
 
 "on":
   workflow_dispatch:
