@@ -10,6 +10,11 @@ name: "CI Testing Bash SCript"
       - 'action.sh'
       - '.github/workflows/ci.yml'
 
+
+permissions:
+  contents: read
+
+
 jobs:
   test:
     name: CI/CD Test
