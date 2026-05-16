@@ -111,6 +111,7 @@ jobs:
           mode: create
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          runner_scope: repo
           server_type: cx23
           location: nbg1  # Nuremberg, Germany
           image: rocky-9 # Rocky Linux 9
@@ -139,6 +140,7 @@ jobs:
           mode: delete
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+          runner_scope: repo
           name: ${{ needs.create-runner.outputs.label }}
           server_id: ${{ needs.create-runner.outputs.server_id }}
 ```
