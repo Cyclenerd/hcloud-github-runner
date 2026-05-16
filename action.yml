@@ -93,6 +93,15 @@ inputs:
       'skip' will skip the installation. A working installation is expected in the 'runner_dir'.
     required: false
     default: 'latest'
+  runner_scope:
+    description: >-
+      Select scope for this runner: 'repo' for a repostitory runner or 'org' for an organization runner
+    required: false
+    type: 'choice'
+    options:
+    - repo
+    - org
+    default: 'repo'    
   server_id:
     description: >-
       ID (integer) of Hetzner Cloud Server to delete.
@@ -155,6 +164,7 @@ runs:
         INPUT_RUNNER_DIR: ${{ inputs.runner_dir }}
         INPUT_RUNNER_VERSION: ${{ inputs.runner_version }}
         INPUT_RUNNER_WAIT: ${{ inputs.runner_wait }}
+        INPUT_RUNNER_SCOPE: ${{ inputs.runner_scope }}
         INPUT_SERVER_ID: ${{ inputs.server_id }}
         INPUT_SERVER_TYPE: ${{ inputs.server_type }}
         INPUT_SERVER_WAIT: ${{ inputs.server_wait }}
