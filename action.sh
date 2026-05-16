@@ -391,7 +391,7 @@ jq -n \
 	--arg     image           "$MY_IMAGE" \
 	--arg     server_type     "$MY_SERVER_TYPE" \
 	--arg     name            "$MY_NAME" \
-	--arg     runner_scope    "${MY_RUNNER_SCOPE//\//_}" \	
+	--arg     runner_scope    "${MY_RUNNER_SCOPE//\//_}" \
 	--argjson enable_ipv4     "$MY_ENABLE_IPV4" \
 	--argjson enable_ipv6     "$MY_ENABLE_IPV6" \
 	--rawfile cloud_init_yml  "cloud-init.yml" \
