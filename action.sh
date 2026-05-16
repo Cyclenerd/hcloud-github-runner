@@ -207,6 +207,20 @@ if [[ "$MY_RUNNER_VERSION" != "latest" && "$MY_RUNNER_VERSION" != "skip" && ! "$
 	exit_with_failure "'$MY_RUNNER_VERSION' is not a valid GitHub Actions Runner version! Enter 'latest', 'skip' or the version without 'v'."
 fi
 
+# Select scope for this runner.
+# 'org' creates a org-wide runner, while 'repo' creates a repo-only runner (default)
+if [[ "$INPUT_RUNNER_SCOPE" == "org" ]]; then
+	MY_RUNNER_SCOPE=orgs/${GITHUB_REPOSITORY%%/*}           # For api.github.com/${MY_RUNNER_SCOPE}/...
+	MY_RUNNER_TARGET=${GITHUB_REPOSITORY%%/*}               # For runner's `./config.sh --url ${MY_RUNNER_TARGET} ...`
+	MY_RUNNER_URL="organizations/${GITHUB_REPOSITORY%%/*}"  # For github.com/${MY_RUNNER_URL}/...
+elif [[ "$INPUT_RUNNER_SCOPE" == "repo" ]]; then
+	MY_RUNNER_SCOPE=repos/${GITHUB_REPOSITORY}
+	MY_RUNNER_TARGET=${GITHUB_REPOSITORY}
+	MY_RUNNER_URL="${GITHUB_REPOSITORY}"
+else
+	exit_with_failure "Invalid runner scope: $INPUT_RUNNER_SCOPE"
+fi
+
 # Set maximal retries * WAIT_SEC (10 sec) for GitHub Actions Runner registration (default: 60 [10 min])
 # If INPUT_RUNNER_WAIT is set, use its value; otherwise, use "60".
 MY_RUNNER_WAIT=${INPUT_RUNNER_WAIT:-"60"}
@@ -284,8 +298,8 @@ if [[ "$MY_MODE" == "delete" ]]; then
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${MY_GITHUB_TOKEN}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		"https://api.github.com/repos/${MY_GITHUB_REPOSITORY}/actions/runners" \
-		|| exit_with_failure "Failed to list GitHub Actions runners from repository!"
+		"https://api.github.com/${MY_RUNNER_SCOPE}/actions/runners" \
+		|| exit_with_failure "Failed to list GitHub Actions runners from ${INPUT_RUNNER_SCOPE}:${MY_RUNNER_TARGET}!"
 
 	MY_GITHUB_RUNNER_ID=$(jq -er ".runners[] | select(.name == \"$MY_NAME\") | .id" < "github-runners.json")
 	# Check if MY_GITHUB_RUNNER_ID is an integer
@@ -302,8 +316,8 @@ if [[ "$MY_MODE" == "delete" ]]; then
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${MY_GITHUB_TOKEN}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		"https://api.github.com/repos/${MY_GITHUB_REPOSITORY}/actions/runners/${MY_GITHUB_RUNNER_ID}" \
-		|| exit_with_failure "Failed to delete GitHub Actions Runner from repository! Please delete manually: https://github.com/${MY_GITHUB_REPOSITORY}/settings/actions/runners"
+		"https://api.github.com/${MY_RUNNER_SCOPE}/actions/runners/${MY_GITHUB_RUNNER_ID}" \
+		|| exit_with_failure "Failed to delete GitHub Actions Runner from repository! Please delete manually: https://github.com/${MY_RUNNER_URL}/settings/actions/runners/${MY_GITHUB_RUNNER_ID}"
 	echo "GitHub Actions Runner deleted successfully."
 	echo
 	echo "The Hetzner Cloud Server and its associated GitHub Actions Runner have been deleted successfully."
@@ -327,7 +341,7 @@ curl -L \
 	-H "Accept: application/vnd.github+json" \
 	-H "Authorization: Bearer ${MY_GITHUB_TOKEN}" \
 	-H "X-GitHub-Api-Version: 2022-11-28" \
-	"https://api.github.com/repos/${MY_GITHUB_REPOSITORY}/actions/runners/registration-token" \
+	"https://api.github.com/${MY_RUNNER_SCOPE}/actions/runners/registration-token" \
 	|| exit_with_failure "Failed to retrieve GitHub Actions Runner registration token!"
 
 # Read the GitHub Runner registration token from a file (assuming valid JSON)
@@ -357,6 +371,8 @@ export MY_NAME
 export MY_PRE_RUNNER_SCRIPT_BASE64
 export MY_RUNNER_DIR
 export MY_RUNNER_VERSION
+export MY_RUNNER_TARGET
+
 # Substitute environment variables in the cloud-init template and create the final cloud-init configuration
 if [[ ! -f "cloud-init.template.yml" ]]; then
 	exit_with_failure "cloud-init.template.yml not found!"
@@ -375,6 +391,7 @@ jq -n \
 	--arg     image           "$MY_IMAGE" \
 	--arg     server_type     "$MY_SERVER_TYPE" \
 	--arg     name            "$MY_NAME" \
+	--arg     runner_scope    "${MY_RUNNER_SCOPE//\//_}" \	
 	--argjson enable_ipv4     "$MY_ENABLE_IPV4" \
 	--argjson enable_ipv6     "$MY_ENABLE_IPV6" \
 	--rawfile cloud_init_yml  "cloud-init.yml" \
@@ -503,7 +520,7 @@ while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${MY_GITHUB_TOKEN}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		"https://api.github.com/repos/${MY_GITHUB_REPOSITORY}/actions/runners" \
+		"https://api.github.com/${MY_RUNNER_SCOPE}/actions/runners" \
 		|| exit_with_failure "Failed to list GitHub Actions runners from repository!"
 
 	MY_GITHUB_RUNNER_ID=$(jq -er ".runners[] | select(.name == \"$MY_NAME\") | .id" < "github-runners.json")
@@ -524,8 +541,8 @@ fi
 
 echo
 echo "The Hetzner Cloud Server and its associated GitHub Actions Runner are ready for use."
-echo "Runner: https://github.com/${MY_GITHUB_REPOSITORY}/settings/actions/runners/${MY_GITHUB_RUNNER_ID}"
+echo "Runner: https://github.com/${MY_RUNNER_URL}/settings/actions/runners/${MY_GITHUB_RUNNER_ID}"
 # Add GitHub Action job summary
 # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#adding-a-job-summary
-echo "The Hetzner Cloud Server and its associated [GitHub Actions Runner](https://github.com/${MY_GITHUB_REPOSITORY}/settings/actions/runners/${MY_GITHUB_RUNNER_ID}) are ready for use 🚀" >> "$GITHUB_STEP_SUMMARY"
+echo "The Hetzner Cloud Server and its associated [GitHub Actions Runner](https://github.com/${MY_RUNNER_URL}/settings/actions/runners/${MY_GITHUB_RUNNER_ID}) are ready for use 🚀" >> "$GITHUB_STEP_SUMMARY"
 exit 0
