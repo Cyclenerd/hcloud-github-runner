@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2024 Nils Knieling. All Rights Reserved.
+# Copyright 2024-2026 Nils Knieling. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -113,10 +113,6 @@ cd "$MY_RUNNER_DIR" && \
 # Download the GitHub Actions Runner archive
 curl -O -L "https://github.com/actions/runner/releases/download/v${MY_RUNNER_VERSION}/actions-runner-linux-${MY_ARCH}-${MY_RUNNER_VERSION}.tar.gz" && \
 tar xzf "actions-runner-linux-${MY_ARCH}-${MY_RUNNER_VERSION}.tar.gz"
-
-# Patch for Ubuntu 24.04 (https://github.com/actions/runner/issues/3150)
-# This patch might be necessary for successful installation on Ubuntu 24.04
-sed -i 's/libicu72/libicu72 libicu74/' ./bin/installdependencies.sh
 
 # Run the installation script
 ./bin/installdependencies.sh && \
